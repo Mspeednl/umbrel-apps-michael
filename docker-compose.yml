@@ -1,0 +1,10 @@
+services:
+  dividend-dashboard:
+    build:
+      context: ./app
+      dockerfile: backend/Dockerfile
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./data:/data
+    restart: unless-stopped

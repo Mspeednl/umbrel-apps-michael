@@ -1,0 +1,15 @@
+services:
+  web:
+    build:
+      context: ./app
+      dockerfile: backend/Dockerfile
+    restart: on-failure
+    volumes:
+      - ${APP_DATA_DIR}/data:/data
+    environment:
+      DATA_DIR: /data
+
+  app_proxy:
+    environment:
+      APP_HOST: dividend-dashboard_web_1
+      APP_PORT: 8000
