@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dividend Dashboard</title>
+<link rel="stylesheet" href="/style.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+</head>
+<body>
+<header>
+  <h1>Dividend Dashboard</h1>
+  <button id="refresh-btn" class="btn-secondary">Ververs koersen</button>
+</header>
+
+<main>
+  <section id="totals" class="card-row"></section>
+
+  <section class="card">
+    <div class="card-header">
+      <h2>Portefeuille</h2>
+      <button id="add-holding-btn" class="btn-primary">+ Aandeel toevoegen</button>
+    </div>
+    <div class="table-wrap">
+      <table id="holdings-table">
+        <thead>
+          <tr>
+            <th>Ticker</th><th>Naam</th><th>Sector</th><th>Aantal</th>
+            <th>Koers</th><th>Waarde (EUR)</th><th>Rendement</th>
+            <th>Dividendrend.</th><th>YoC</th><th></th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </section>
+
+  <div class="grid-2">
+    <section class="card">
+      <h2>Dividendinkomen per maand</h2>
+      <canvas id="forecast-chart" height="220"></canvas>
+      <p id="forecast-summary" class="muted"></p>
+    </section>
+
+    <section class="card">
+      <h2>Sectorspreiding</h2>
+      <canvas id="sector-chart" height="220"></canvas>
+    </section>
+  </div>
+
+  <section class="card">
+    <h2>Dividendkalender</h2>
+    <table id="calendar-table">
+      <thead><tr><th>Datum</th><th>Ticker</th><th>Naam</th><th></th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </section>
+</main>
+
+<dialog id="holding-dialog">
+  <form id="holding-form">
+    <h2 id="dialog-title">Aandeel toevoegen</h2>
+    <input type="hidden" id="holding-id">
+    <label>Ticker (bv. AAPL, ASML.AS)
+      <input type="text" id="f-ticker" required>
+    </label>
+    <label>Aantal
+      <input type="number" step="any" id="f-shares" required>
+    </label>
+    <label>Aankoopprijs per aandeel
+      <input type="number" step="any" id="f-cost" required>
+    </label>
+    <label>Aankoopdatum
+      <input type="date" id="f-date" required>
+    </label>
+    <label>Valuta
+      <select id="f-currency">
+        <option value="EUR">EUR</option>
+        <option value="USD">USD</option>
+        <option value="GBP">GBP</option>
+        <option value="CHF">CHF</option>
+      </select>
+    </label>
+    <div class="dialog-actions">
+      <button type="button" id="cancel-btn" class="btn-secondary">Annuleren</button>
+      <button type="submit" class="btn-primary">Opslaan</button>
+    </div>
+  </form>
+</dialog>
+
+<script src="/app.js"></script>
+</body>
+</html>
