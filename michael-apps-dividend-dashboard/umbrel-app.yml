@@ -10,9 +10,9 @@ description: >-
   sectorspreiding te analyseren. Koersen en dividendhistorie worden live
   opgehaald via Yahoo Finance en alle bedragen worden automatisch omgerekend
   naar euro's. Al je data blijft lokaal opgeslagen op je Umbrel.
-developer: Michael Kneppel
-website: https://delta-control.nl
-submitter: Michael Kneppel
+developer: MspeedNL
+website: .
+submitter: MspeedNL
 submission: https://github.com/Mspeednl/umbrel-apps-michael
 icon: https://raw.githubusercontent.com/Mspeednl/umbrel-apps-michael/main/michael-apps-dividend-dashboard/icon.svg
 gallery: []
