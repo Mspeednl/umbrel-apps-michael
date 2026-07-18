@@ -11,6 +11,8 @@ const els = {
   form: document.getElementById("holding-form"),
   cancelBtn: document.getElementById("cancel-btn"),
   dialogTitle: document.getElementById("dialog-title"),
+  tickerInput: document.getElementById("f-ticker"),
+  tickerSuggestions: document.getElementById("ticker-suggestions"),
 };
 
 let forecastChart, sectorChart;
@@ -164,6 +166,7 @@ function renderCalendar(events) {
 
 function openDialog(holding = null) {
   els.form.reset();
+  hideSuggestions();
   document.getElementById("holding-id").value = holding?.id || "";
   els.dialogTitle.textContent = holding ? "Aandeel bewerken" : "Aandeel toevoegen";
   if (holding) {
@@ -175,6 +178,61 @@ function openDialog(holding = null) {
   }
   els.dialog.showModal();
 }
+
+// ---- Ticker zoeken (autocomplete) ----
+
+let searchDebounce;
+
+function hideSuggestions() {
+  els.tickerSuggestions.innerHTML = "";
+  els.tickerSuggestions.classList.remove("open");
+}
+
+function renderSuggestions(results) {
+  if (!results.length) {
+    hideSuggestions();
+    return;
+  }
+  els.tickerSuggestions.innerHTML = results
+    .map(
+      (r) => `
+      <div class="suggestion-item" data-symbol="${r.symbol}">
+        <span class="suggestion-symbol">${r.symbol}</span>
+        <span class="suggestion-name">${r.name}</span>
+        <span class="suggestion-meta">${[r.exchange, r.type].filter(Boolean).join(" · ")}</span>
+      </div>`
+    )
+    .join("");
+  els.tickerSuggestions.classList.add("open");
+}
+
+els.tickerInput.addEventListener("input", () => {
+  const query = els.tickerInput.value.trim();
+  clearTimeout(searchDebounce);
+  if (query.length < 1) {
+    hideSuggestions();
+    return;
+  }
+  searchDebounce = setTimeout(async () => {
+    try {
+      const data = await api(`/search?q=${encodeURIComponent(query)}`);
+      renderSuggestions(data.results);
+    } catch {
+      hideSuggestions();
+    }
+  }, 300);
+});
+
+els.tickerSuggestions.addEventListener("click", (e) => {
+  const item = e.target.closest(".suggestion-item");
+  if (!item) return;
+  els.tickerInput.value = item.dataset.symbol;
+  hideSuggestions();
+});
+
+document.addEventListener("click", (e) => {
+  if (!e.target.closest(".autocomplete-wrap")) hideSuggestions();
+});
 
 els.addBtn.addEventListener("click", () => openDialog());
 els.cancelBtn.addEventListener("click", () => els.dialog.close());
