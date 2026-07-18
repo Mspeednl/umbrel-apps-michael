@@ -4,6 +4,7 @@ niet bij elke dashboard-load opnieuw bevragen."""
 import time
 from datetime import datetime
 
+import requests
 import yfinance as yf
 
 CACHE_TTL_SECONDS = 900  # 15 minuten
@@ -73,6 +74,41 @@ def get_fx_rate(currency: str, force: bool = False) -> float:
         return rate if rate else 1.0
 
     return _cached(f"fx:{currency}", fetch, force)
+
+
+def search_symbols(query: str, limit: int = 8) -> list[dict]:
+    """Zoekt tickers (aandelen én crypto) bij Yahoo Finance op naam of symbool."""
+    query = (query or "").strip()
+    if not query:
+        return []
+
+    def fetch():
+        url = "https://query2.finance.yahoo.com/v1/finance/search"
+        params = {"q": query, "quotesCount": limit, "newsCount": 0, "listsCount": 0}
+        headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"}
+        try:
+            response = requests.get(url, params=params, headers=headers, timeout=5)
+            response.raise_for_status()
+            quotes = response.json().get("quotes", [])
+        except Exception:
+            return []
+
+        results = []
+        for q in quotes:
+            symbol = q.get("symbol")
+            if not symbol:
+                continue
+            results.append(
+                {
+                    "symbol": symbol,
+                    "name": q.get("longname") or q.get("shortname") or symbol,
+                    "exchange": q.get("exchange") or q.get("exchDisp") or "",
+                    "type": q.get("quoteType") or "",
+                }
+            )
+        return results
+
+    return _cached(f"search:{query.lower()}", fetch)
 
 
 def get_dividend_history(ticker: str, force: bool = False):
