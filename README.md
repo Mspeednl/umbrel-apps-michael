@@ -18,6 +18,9 @@ Yahoo Finance zelf.
   geen exacte datum geeft, wordt deze geschat op basis van de historische
   betaalfrequentie (gemarkeerd als "geschat").
 - **Sectorspreiding**: donutgrafiek van je portefeuille per sector.
+- **Ticker zoeken**: typ een naam of symbool (aandeel of crypto) bij "Aandeel
+  toevoegen" en kies uit live suggesties van Yahoo Finance, in plaats van de
+  exacte tickernotatie te moeten kennen.
 
 Niet (nog) ingebouwd: dividend safety scores, stock comparison, een dividend-
 calculator en live brokerkoppelingen. Dat past qua architectuur prima later
@@ -32,7 +35,8 @@ docker compose up --build
 ```
 
 Open daarna `http://localhost:8000`. Voeg een aandeel toe via **+ Aandeel
-toevoegen**: gebruik de Yahoo Finance-tickernotatie, bijvoorbeeld:
+toevoegen**: typ een naam of ticker en kies uit de live suggesties, of gebruik
+zelf de Yahoo Finance-tickernotatie, bijvoorbeeld:
 
 | Beurs | Ticker-formaat | Voorbeeld |
 |---|---|---|
@@ -75,35 +79,60 @@ verder identiek.
 ### Route B — als Umbrel App Store tegel
 
 De map `umbrel-store/` bevat een kant-en-klare Community App Store: een
-`umbrel-app-store.yml` op de root, en daaronder `dividend-dashboard/` met het
-app-manifest, de Umbrel-compose file en een kopie van de broncode + icoon.
+`umbrel-app-store.yml` op de root, en daaronder `michael-apps-dividend-dashboard/`
+met het app-manifest, de Umbrel-compose file en een kopie van de broncode + icoon.
+
+Belangrijk: Umbrel eist dat de **app-id begint met de store-id** uit
+`umbrel-app-store.yml` (hier: `michael-apps`), en dat de **mapnaam exact gelijk
+is aan die app-id** — anders wordt de app stilletjes uit de lijst gefilterd
+zonder foutmelding. Vandaar de wat omslachtige naam
+`michael-apps-dividend-dashboard`.
+
+Daarnaast bouwt Umbrel bij installatie **niet** zelf een image vanuit
+broncode (`build:` in `docker-compose.yml` wordt genegeerd) — de app moet een
+kant-en-klare, al gepubliceerde Docker-image gebruiken, net als bijvoorbeeld
+Nextcloud dat doet. Daarom bouwt en publiceert een GitHub Actions-workflow
+(`.github/workflows/build-image.yml`) de image automatisch naar GitHub
+Container Registry (ghcr.io) zodra je naar de `main`-branch pusht.
 
 1. **Maak een (publiek) GitHub-repo aan**, bijvoorbeeld genaamd
    `umbrel-apps-michael`.
 2. **Upload de inhoud van de `umbrel-store/`-map** naar de root van dat repo
-   (dus `umbrel-app-store.yml` en `dividend-dashboard/` komen direct in de
-   repo-root te staan, niet in een submap). Kan via `git push` of gewoon door
-   de map naar de GitHub-website te slepen (Add file → Upload files).
+   (dus `umbrel-app-store.yml`, `michael-apps-dividend-dashboard/` én de map
+   `.github/` komen direct in de repo-root te staan, niet in een submap). Kan
+   via `git push` of gewoon door de map naar de GitHub-website te slepen (Add
+   file → Upload files).
 3. **Pas 2 regels aan** in
-   `dividend-dashboard/umbrel-app.yml` voordat je uploadt, en vervang
-   `<jouw-github-gebruiker>` en `<repo-naam>` door je eigen GitHub-gebruikersnaam
-   en de repo-naam die je bij stap 1 koos:
+   `michael-apps-dividend-dashboard/umbrel-app.yml` voordat je uploadt, en
+   vervang `<jouw-github-gebruiker>` en `<repo-naam>` door je eigen
+   GitHub-gebruikersnaam en de repo-naam die je bij stap 1 koos:
    ```yaml
    submission: https://github.com/<jouw-github-gebruiker>/<repo-naam>
-   icon: https://raw.githubusercontent.com/<jouw-github-gebruiker>/<repo-naam>/main/dividend-dashboard/icon.svg
+   icon: https://raw.githubusercontent.com/<jouw-github-gebruiker>/<repo-naam>/main/michael-apps-dividend-dashboard/icon.svg
    ```
-4. Ga op je Umbrel-dashboard naar **App Store → instellingen-icoon (of
+4. **Wacht tot de GitHub Actions-build klaar is**: ga naar het **Actions**-tabblad
+   van je repo, de workflow "Build and publish Docker image" moet groen
+   (geslaagd) worden. Duurt een paar minuten.
+5. **Maak de gepubliceerde image openbaar**: ga naar je GitHub-profiel →
+   **Packages** → `dividend-dashboard` → **Package settings** (rechts
+   onderaan) → **Change visibility** → **Public**. Zonder deze stap kan Umbrel
+   de image niet downloaden.
+6. Ga op je Umbrel-dashboard naar **App Store → instellingen-icoon (of
    Settings) → Community App Stores** en voeg de URL van je nieuwe repo toe,
    bijvoorbeeld `https://github.com/<jouw-github-gebruiker>/<repo-naam>`.
-5. Zoek in de App Store naar **Dividend Dashboard** en klik **Install**. Umbrel
-   bouwt de image zelf (via `docker-compose.yml` in `dividend-dashboard/`) en
-   zet 'm als tegel op je startscherm, met data in `${APP_DATA_DIR}/data`
-   (neemt Umbrel automatisch mee in zijn eigen back-upmechanisme).
+7. Zoek in de App Store naar **Dividend Dashboard** en klik **Install**. Umbrel
+   haalt nu de kant-en-klare image op (in plaats van zelf te bouwen) en zet 'm
+   als tegel op je startscherm, met data in `${APP_DATA_DIR}/data` (neemt
+   Umbrel automatisch mee in zijn eigen back-upmechanisme).
+
+Update je later de code in `app/`? Push die wijziging naar dezelfde repo, dan
+bouwt GitHub Actions automatisch een nieuwe image, en kun je in Umbrel op
+**Update** klikken bij de app.
 
 Umbrel's manifest-schema kan per versie licht verschillen — werkt de
-installatie niet meteen (bv. rondom `APP_HOST`-naamgeving), val dan terug op
-Route A, die blijft functioneel identiek draaien. Draait de app al via Route A
-op poort 8000? Stop die eerst met `docker compose down` in de oude map, anders
+installatie niet meteen, val dan terug op Route A, die blijft functioneel
+identiek draaien. Draait de app al via Route A op poort 8000? Stop die eerst
+met `docker compose down` in de oude map, anders
 botst de poort met de nieuwe Umbrel-installatie.
 
 ## Architectuur
