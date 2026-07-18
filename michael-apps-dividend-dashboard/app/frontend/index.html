@@ -61,8 +61,11 @@
   <form id="holding-form">
     <h2 id="dialog-title">Aandeel toevoegen</h2>
     <input type="hidden" id="holding-id">
-    <label>Ticker (bv. AAPL, ASML.AS)
-      <input type="text" id="f-ticker" required>
+    <label>Ticker of naam (bv. AAPL, ASML, bitcoin)
+      <div class="autocomplete-wrap">
+        <input type="text" id="f-ticker" autocomplete="off" required>
+        <div id="ticker-suggestions" class="suggestions-list"></div>
+      </div>
     </label>
     <label>Aantal
       <input type="number" step="any" id="f-shares" required>
