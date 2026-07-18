@@ -2,7 +2,7 @@ manifestVersion: 1
 id: michael-apps-dividend-dashboard
 category: finance
 name: Dividend Dashboard
-version: "1.0.0"
+version: "1.1.0"
 tagline: Volg je aandelenportefeuille en dividendinkomen
 description: >-
   Dividend Dashboard is een zelf-hosted tool om je aandelenportefeuille bij te
@@ -23,7 +23,7 @@ defaultPassword: ""
 deterministicPassword: false
 torOnly: false
 releaseNotes: >-
-  Eerste release: portfolio-overzicht, dividend forecasting, dividendkalender
-  en sectorallocatie.
+  1.1.0: ticker zoeken toegevoegd, typ een naam of symbool (aandeel of
+  crypto) en kies uit live suggesties.
 dependencies: []
 permissions: []
