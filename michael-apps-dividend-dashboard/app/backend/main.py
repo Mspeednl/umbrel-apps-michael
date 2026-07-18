@@ -66,6 +66,14 @@ def delete_holding(holding_id: int, session: Session = Depends(get_session)):
     return {"ok": True}
 
 
+# ---------- Ticker zoeken ----------
+
+
+@app.get("/api/search")
+def search_ticker(q: str = Query(..., min_length=1)):
+    return {"results": md.search_symbols(q)}
+
+
 # ---------- Portfolio overzicht ----------
 
 
